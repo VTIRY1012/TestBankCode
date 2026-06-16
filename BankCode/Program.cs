@@ -7,5 +7,7 @@ service.TestStory1_2();
 // test story 2
 service.TestStory2_1();
 service.TestStory2_2();
+// test story 3
+service.TestStory3();
 
 Console.ReadLine();

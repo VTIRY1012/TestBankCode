@@ -71,6 +71,10 @@ internal class BankCodeService
             {
                 accountNumber.Append(digit);
             }
+            else
+            {
+                accountNumber.Append('?'); // 無法識別的數字用 '?' 表示
+            }
 
         }
         return accountNumber.ToString();
@@ -137,5 +141,38 @@ internal class BankCodeService
         string accountNumber = "111111111"; // 餘數為1
         bool isValid = IsValidCheckSum(accountNumber);
         Console.WriteLine($"Account Number: {accountNumber}, Checksum Valid: {isValid}"); // 預期輸出: "Account Number: 111111111, Checksum Valid: False"
+    }
+
+    // User Story 3: 錯誤處理
+    /*
+        457508000
+        664371495 ERR
+        86110??36 ILL
+     */
+    public string ValidateAccount(string accountNumber)
+    {
+        if (accountNumber.Contains('?'))
+        {
+            return "ILL"; // 無法識別的數字
+        }
+        else if (!IsValidCheckSum(accountNumber))
+        {
+            return "ERR"; // 校驗和錯誤
+        }
+        else
+        {
+            return accountNumber; // 有效帳號
+        }
+    }
+
+    // 測試: 範例測試
+    public void TestStory3()
+    {
+        string accountNumber1 = "457508000";
+        string accountNumber2 = "664371495";
+        string accountNumber3 = "86110??36";
+        Console.WriteLine($"Account Number: {accountNumber1}, Validation Result: {ValidateAccount(accountNumber1)}"); // 預期輸出: "Account Number: 457508000, Validation Result: 457508000"
+        Console.WriteLine($"Account Number: {accountNumber2}, Validation Result: {ValidateAccount(accountNumber2)}"); // 預期輸出: "Account Number: 664371495, Validation Result: ERR"
+        Console.WriteLine($"Account Number: {accountNumber3}, Validation Result: {ValidateAccount(accountNumber3)}"); // 預期輸出: "Account Number: 86110??36, Validation Result: ILL"
     }
 }
