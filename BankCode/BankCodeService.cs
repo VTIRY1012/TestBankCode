@@ -117,4 +117,20 @@ internal class BankCodeService
         }
         return sum % 11 == 0;
     }
+
+    // 測試: 校驗和驗證
+    public void TestStory2_1()
+    {
+        string accountNumber = "345882865"; // 可以整除
+        bool isValid = IsValidCheckSum(accountNumber);
+        Console.WriteLine($"Account Number: {accountNumber}, Checksum Valid: {isValid}"); // 預期輸出: "Account Number: 345882865, Checksum Valid: True"
+    }
+
+    // 測試: 校驗和驗證2
+    public void TestStory2_2()
+    {
+        string accountNumber = "111111111"; // 餘數為1
+        bool isValid = IsValidCheckSum(accountNumber);
+        Console.WriteLine($"Account Number: {accountNumber}, Checksum Valid: {isValid}"); // 預期輸出: "Account Number: 111111111, Checksum Valid: False"
+    }
 }
