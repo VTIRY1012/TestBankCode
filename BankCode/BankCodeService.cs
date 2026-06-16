@@ -101,4 +101,20 @@ internal class BankCodeService
         string accountNumber = ParseAccount(accountLines);
         Console.WriteLine($"Parsed Account Number: {accountNumber}"); // 預期輸出: "000000000"
     }
+
+    // User Story 2: 校驗和驗證
+    /*
+        - 實作校驗和計算: `(d1 + 2*d2 + 3*d3 + ... + 9*d9) mod 11 = 0`
+        - 驗證帳號的有效性
+     */
+
+    public bool IsValidCheckSum(string accountNumber)
+    {
+        var sum = 0;
+        for (int i = 0; i < accountNumber.Length; i++)
+        {
+            sum += (i + 1) * (accountNumber[i] - '0');
+        }
+        return sum % 11 == 0;
+    }
 }
