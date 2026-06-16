@@ -111,8 +111,11 @@ internal class BankCodeService
     public bool IsValidCheckSum(string accountNumber)
     {
         var sum = 0;
+        // i = 0, 1, 2, 3, 4, 5, 6, 7, 8 因為帳號有 9 個數字
         for (int i = 0; i < 9; i++)
         {
+            //i=0 → position = 9-0 = 9  (第1個數字，權重9)
+            //i=1 → position = 9-1 = 8  (第2個數字，權重8) 以此類推
             int digit = accountNumber[i] - '0';
             int position = 9 - i;
             sum += digit * position;
