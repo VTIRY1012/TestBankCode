@@ -111,9 +111,11 @@ internal class BankCodeService
     public bool IsValidCheckSum(string accountNumber)
     {
         var sum = 0;
-        for (int i = 0; i < accountNumber.Length; i++)
+        for (int i = 0; i < 9; i++)
         {
-            sum += (i + 1) * (accountNumber[i] - '0');
+            int digit = accountNumber[i] - '0';
+            int position = 9 - i;
+            sum += digit * position;
         }
         return sum % 11 == 0;
     }
