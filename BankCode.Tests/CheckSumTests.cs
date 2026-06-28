@@ -14,7 +14,8 @@ public class CheckSumTests
     [InlineData("000000000")]
     public void Should_Return_True_For_Valid_CheckSum(string account)
     {
-        Assert.True(_service.IsValidCheckSum(account));
+        string[] lines = AccountRenderer.Render(account);
+        Assert.True(_service.ParseNumber(lines).isValid);
     }
 
     [Theory]
@@ -23,6 +24,7 @@ public class CheckSumTests
     [InlineData("123456780")]
     public void Should_Return_False_For_Invalid_CheckSum(string account)
     {
-        Assert.False(_service.IsValidCheckSum(account));
+        string[] lines = AccountRenderer.Render(account);
+        Assert.False(_service.ParseNumber(lines).isValid);
     }
 }
