@@ -1,5 +1,3 @@
-using BankCode;
-
 namespace BankCode.Tests;
 
 // User Story 2: 校驗和驗證 - (d1 + 2*d2 + ... + 9*d9) mod 11 == 0

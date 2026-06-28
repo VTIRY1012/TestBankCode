@@ -8,6 +8,7 @@ internal class BankCodeService
         var util = new BankCodeUtil();
         var getNumber = util.ParseAccount(lines);
         var isValid = util.IsValidCheckSum(getNumber);
+        getNumber = util.ValidateAccount(getNumber);
         return (isValid, getNumber);
     }
 }

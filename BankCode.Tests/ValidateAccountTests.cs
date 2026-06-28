@@ -1,34 +1,36 @@
-using BankCode;
-
 namespace BankCode.Tests;
 
 // User Story 3: 錯誤處理 - 有效帳號 / ERR (校驗和錯誤) / ILL (無法識別)
 public class ValidateAccountTests
 {
-    private readonly BankCodeUtil _util = new();
+    private readonly BankCodeService _service = new();
 
     [Fact]
     public void Should_Return_Account_When_Valid()
     {
-        Assert.Equal("457508000", _util.ValidateAccount("457508000"));
+        var lines = AccountRenderer.Render("457508000");
+        Assert.Equal("457508000", _service.ParseNumber(lines).number);
     }
 
     [Fact]
     public void Should_Return_ERR_When_CheckSum_Invalid()
     {
-        Assert.Equal("ERR", _util.ValidateAccount("664371495"));
+        var lines = AccountRenderer.Render("664371495");
+        Assert.Equal("ERR", _service.ParseNumber(lines).number);
     }
 
     [Fact]
     public void Should_Return_ILL_When_Contains_Unrecognized_Digit()
     {
-        Assert.Equal("ILL", _util.ValidateAccount("86110??36"));
+        var lines = AccountRenderer.Render("86110??36");
+        Assert.Equal("ILL", _service.ParseNumber(lines).number);
     }
 
     [Fact]
     public void Should_Prefer_ILL_Over_ERR_When_Both_Apply()
     {
         // 同時有無法識別 (?) 與校驗和問題時，應優先回報 ILL
-        Assert.Equal("ILL", _util.ValidateAccount("1234?6789"));
+        var lines = AccountRenderer.Render("1234?6789");
+        Assert.Equal("ILL", _service.ParseNumber(lines).number);
     }
 }
