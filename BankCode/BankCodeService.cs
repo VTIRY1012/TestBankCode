@@ -4,104 +4,12 @@ namespace BankCode;
 
 internal class BankCodeService
 {
-    // User Story 1: 數字識別
-    // 可以知道帳號是甚麼
-    /*
-        - 從 3x3 字元圖案解析數字 0-9
-        - 每個帳號由 9 個數字組成
-        - 每個數字佔用 3 個字元寬度
-     */
-
-    // 定義數字
-    Dictionary<string, char> _digitPatterns = new Dictionary<string, char>
+    // 解析帳號對外開放方法
+    public string ParseNumber(string[] lines)
     {
-        {" _ " + 
-         "| |"+
-         "|_|",'0' },
-
-        {"   " + 
-         "  |"+
-         "  |", '1' },
-
-        {" _ " +
-         " _|"+
-         "|_ ", '2' },
-
-        {" _ " + 
-         " _|"+
-         " _|", '3' },
-
-        {" _ " + 
-         "|_|"+
-         "  |", '4' },
-
-        {" _ " +
-         "|_ " +
-         " _|", '5' },
-
-        {" _ " +
-         "|_ " +
-         "|_|", '6' },
-
-        {" _ " +
-         "  |" +
-         "  |", '7' },
-
-        {" _ " +
-         "|_|" +
-         "|_|", '8' },
-
-        {" _ " +
-         "|_|" +
-         " _|", '9'  }
-    };
-
-    // 解析帳號
-    public string ParseAccount(string[] lines)
-    {
-        var accountNumber = new StringBuilder();
-        for (int i = 0; i < 9; i++)
-        {
-            string digitPattern = lines[0].Substring(i * 3, 3) +
-                                  lines[1].Substring(i * 3, 3) +
-                                  lines[2].Substring(i * 3, 3);
-            if (_digitPatterns.TryGetValue(digitPattern, out char digit))
-            {
-                accountNumber.Append(digit);
-            }
-            else
-            {
-                accountNumber.Append('?'); // 無法識別的數字用 '?' 表示
-            }
-
-        }
-        return accountNumber.ToString();
-    }
-
-    // 測試: 隨便塞數字
-    public void TestStory1()
-    {
-        string[] accountLines = new string[]
-        {
-            "    _  _     _  _  _  _  _ ",
-            "  | _| _||_||_ |_   ||_||_|",
-            "  ||_  _|  | _||_|  ||_| _|"
-        };
-        string accountNumber = ParseAccount(accountLines);
-        Console.WriteLine($"Parsed Account Number: {accountNumber}"); // 預期輸出: "123456789"
-    }
-
-    // 測試: 隨便塞數字2
-    public void TestStory1_2()
-    {
-        string[] accountLines = new string[]
-        {
-            " _  _  _  _  _  _  _  _  _ ",
-            "| || || || || || || || || |",
-            "|_||_||_||_||_||_||_||_||_|"
-        };
-        string accountNumber = ParseAccount(accountLines);
-        Console.WriteLine($"Parsed Account Number: {accountNumber}"); // 預期輸出: "000000000"
+        var util =  new BankCodeUtil();
+        var getNumber = util.ParseAccount(lines);
+        return getNumber;
     }
 
     // User Story 2: 校驗和驗證
@@ -125,22 +33,6 @@ internal class BankCodeService
         return sum % 11 == 0;
     }
 
-    // 測試: 校驗和驗證
-    public void TestStory2_1()
-    {
-        string accountNumber = "345882865"; // 可以整除
-        bool isValid = IsValidCheckSum(accountNumber);
-        Console.WriteLine($"Account Number: {accountNumber}, Checksum Valid: {isValid}"); // 預期輸出: "Account Number: 345882865, Checksum Valid: True"
-    }
-
-    // 測試: 校驗和驗證2
-    public void TestStory2_2()
-    {
-        string accountNumber = "111111111"; // 餘數為1
-        bool isValid = IsValidCheckSum(accountNumber);
-        Console.WriteLine($"Account Number: {accountNumber}, Checksum Valid: {isValid}"); // 預期輸出: "Account Number: 111111111, Checksum Valid: False"
-    }
-
     // User Story 3: 錯誤處理
     /*
         457508000
@@ -161,17 +53,6 @@ internal class BankCodeService
         {
             return accountNumber; // 有效帳號
         }
-    }
-
-    // 測試: 範例測試
-    public void TestStory3()
-    {
-        string accountNumber1 = "457508000";
-        string accountNumber2 = "664371495";
-        string accountNumber3 = "86110??36";
-        Console.WriteLine($"Account Number: {accountNumber1}, Validation Result: {ValidateAccount(accountNumber1)}"); // 預期輸出: "Account Number: 457508000, Validation Result: 457508000"
-        Console.WriteLine($"Account Number: {accountNumber2}, Validation Result: {ValidateAccount(accountNumber2)}"); // 預期輸出: "Account Number: 664371495, Validation Result: ERR"
-        Console.WriteLine($"Account Number: {accountNumber3}, Validation Result: {ValidateAccount(accountNumber3)}"); // 預期輸出: "Account Number: 86110??36, Validation Result: ILL"
     }
 
     // User Story 4: 智能修正
