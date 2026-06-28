@@ -125,22 +125,4 @@ public class BankCodeUtil
         }
         return alternatives;
     }
-    
-    // 取得合法數字
-    public Dictionary<char, char[]> BuildDigitNeighbors()
-    {
-        // DigitPatterns 是「圖案 -> 數字」，這裡反轉成「數字 -> 標準圖案」
-        var digitToPattern = BankCodeDictionary.DigitPatterns
-            .ToDictionary(kv => kv.Value, kv => kv.Key);
-        var result = new Dictionary<char, char[]>();
-        foreach (var (digit, pattern) in digitToPattern)
-        {
-            // 對這個數字的圖案加/減一條線，拿到所有合法鄰居
-            result[digit] = GetAlternativeDigits(pattern)
-                .Distinct()
-                .OrderBy(c => c)
-                .ToArray();
-        }
-        return result;
-    }
 }
