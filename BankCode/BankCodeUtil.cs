@@ -77,6 +77,11 @@ public class BankCodeUtil
         }
     }
 
+    public bool IsErrorOrILL(string code)
+    {
+        return code  == "ILL" || code == "ERR";
+    }
+
     // User Story 4: 智能修正
     /*
         - 嘗試通過添加/移除單一管線 (`|`) 或底線 (`_`) 來修正錯誤
@@ -84,4 +89,58 @@ public class BankCodeUtil
         - 多個候選 - 標記為 `AMB` 並列出所有可能的帳號
         - 無法修正 - 保持原狀態 (ERR 或 ILL)
      */
+
+    public (bool isFix, bool isAMB, string[] probablyNumber) SmartFix(string[] lines)
+    {
+        return (false, false, Array.Empty<string>());
+    }
+    
+    // 3x3 格子裡「可放線段」的槽位 (索引 -> 該槽位應有的線段字元)
+    // 索引: 0 1 2 / 3 4 5 / 6 7 8；其餘 (0,2) 永遠空白不需嘗試
+    private static readonly Dictionary<int, char> SegmentSlots = new()
+    {
+        { 1, '_' }, { 4, '_' }, { 7, '_' }, // 上中、中中、下中
+        { 3, '|' }, { 5, '|' }, { 6, '|' }, { 8, '|' } // 中左、中右、下左、下右
+    };
+
+    // 嘗試通過添加/移除單一管線 (|) 或底線 (_) 來修正錯誤
+    // 對單一格子翻轉每個槽位 (空白<->線段)，回傳所有「相差一條線段」的合法候選數字
+    private IEnumerable<char> GetAlternativeDigits(string pattern)
+    {
+        BankCodeDictionary.DigitPatterns.TryGetValue(pattern, out char originalDigit);
+
+        var alternatives = new List<char>();
+        foreach (var (index, segmentChar) in SegmentSlots)
+        {
+            var chars = pattern.ToCharArray();
+            // 有線段就移除，沒有就補上
+            chars[index] = chars[index] == ' ' ? segmentChar : ' ';
+            var candidate = new string(chars);
+
+            if (BankCodeDictionary.DigitPatterns.TryGetValue(candidate, out char digit)
+                && digit != originalDigit)
+            {
+                alternatives.Add(digit);
+            }
+        }
+        return alternatives;
+    }
+    
+    // 取得合法數字
+    public Dictionary<char, char[]> BuildDigitNeighbors()
+    {
+        // DigitPatterns 是「圖案 -> 數字」，這裡反轉成「數字 -> 標準圖案」
+        var digitToPattern = BankCodeDictionary.DigitPatterns
+            .ToDictionary(kv => kv.Value, kv => kv.Key);
+        var result = new Dictionary<char, char[]>();
+        foreach (var (digit, pattern) in digitToPattern)
+        {
+            // 對這個數字的圖案加/減一條線，拿到所有合法鄰居
+            result[digit] = GetAlternativeDigits(pattern)
+                .Distinct()
+                .OrderBy(c => c)
+                .ToArray();
+        }
+        return result;
+    }
 }

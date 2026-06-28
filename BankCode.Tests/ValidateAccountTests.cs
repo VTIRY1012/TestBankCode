@@ -15,10 +15,10 @@ public class ValidateAccountTests
             "|_||_||_||_||_||_||_| _|  |"
         };
 
-        var (isValid, code, number) = _service.ParseNumber(lines);
+        var data = _service.ParseNumber(lines);
 
-        Assert.Equal("000000051", number);
-        Assert.True(isValid); // 校驗和有效
+        Assert.Equal("000000051", data.number);
+        Assert.True(data.isValid); // 校驗和有效
     }
 
     [Fact]
@@ -31,11 +31,11 @@ public class ValidateAccountTests
             "  | _||_||_||_|  |  |  | _|"
         };
 
-        var (isValid, code, number) = _service.ParseNumber(lines);
+        var data = _service.ParseNumber(lines);
 
-        Assert.Equal("49006771?", number);
-        Assert.Equal("ILL", code);
-        Assert.False(isValid);
+        Assert.Equal("49006771?", data.number);
+        Assert.Equal("ILL", data.code);
+        Assert.False(data.isValid);
     }
 
     [Fact]
@@ -48,10 +48,10 @@ public class ValidateAccountTests
             "  ||_  _|  | _||_|  ||_| _ "
         };
 
-        var (isValid, code, number) = _service.ParseNumber(lines);
+        var data = _service.ParseNumber(lines);
 
-        Assert.Equal("1234?678?", number);
-        Assert.Equal("ILL", code);
-        Assert.False(isValid);
+        Assert.Equal("1234?678?", data.number);
+        Assert.Equal("ILL", data.code);
+        Assert.False(data.isValid);
     }
 }
