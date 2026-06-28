@@ -1,36 +1,57 @@
 namespace BankCode.Tests;
 
-// User Story 3: 錯誤處理 - 有效帳號 / ERR (校驗和錯誤) / ILL (無法識別)
+// Use case 3: 含無法辨識 (?) 的情況 (官方測試資料)
 public class ValidateAccountTests
 {
     private readonly BankCodeService _service = new();
 
     [Fact]
-    public void Should_Return_Account_When_Valid()
+    public void Should_Parse_Valid_000000051()
     {
-        var lines = AccountRenderer.Render("457508000");
-        Assert.Equal("457508000", _service.ParseNumber(lines).number);
+        string[] lines =
+        {
+            " _  _  _  _  _  _  _  _    ",
+            "| || || || || || || ||_   |",
+            "|_||_||_||_||_||_||_| _|  |"
+        };
+
+        var (isValid, code, number) = _service.ParseNumber(lines);
+
+        Assert.Equal("000000051", number);
+        Assert.True(isValid); // 校驗和有效
     }
 
     [Fact]
-    public void Should_Return_ERR_When_CheckSum_Invalid()
+    public void Should_Parse_Illegible_49006771()
     {
-        var lines = AccountRenderer.Render("664371495");
-        Assert.Equal("ERR", _service.ParseNumber(lines).number);
+        string[] lines =
+        {
+            "    _  _  _  _  _  _     _ ",
+            "|_||_|| || ||_   |  |  | _ ",
+            "  | _||_||_||_|  |  |  | _|"
+        };
+
+        var (isValid, code, number) = _service.ParseNumber(lines);
+
+        Assert.Equal("49006771?", number);
+        Assert.Equal("ILL", code);
+        Assert.False(isValid);
     }
 
     [Fact]
-    public void Should_Return_ILL_When_Contains_Unrecognized_Digit()
+    public void Should_Parse_Illegible_1234_678()
     {
-        var lines = AccountRenderer.Render("86110??36");
-        Assert.Equal("ILL", _service.ParseNumber(lines).number);
-    }
+        string[] lines =
+        {
+            "    _  _     _  _  _  _  _ ",
+            "  | _| _||_| _ |_   ||_||_|",
+            "  ||_  _|  | _||_|  ||_| _ "
+        };
 
-    [Fact]
-    public void Should_Prefer_ILL_Over_ERR_When_Both_Apply()
-    {
-        // 同時有無法識別 (?) 與校驗和問題時，應優先回報 ILL
-        var lines = AccountRenderer.Render("1234?6789");
-        Assert.Equal("ILL", _service.ParseNumber(lines).number);
+        var (isValid, code, number) = _service.ParseNumber(lines);
+
+        Assert.Equal("1234?678?", number);
+        Assert.Equal("ILL", code);
+        Assert.False(isValid);
     }
 }
