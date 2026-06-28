@@ -16,12 +16,9 @@ public class BankCodeUtil
     public string ParseAccount(string[] lines)
     {
         var accountNumber = new StringBuilder();
-        for (int i = 0; i < 9; i++)
+        foreach (var pattern in GetDigitPatterns(lines))
         {
-            string digitPattern = lines[0].Substring(i * 3, 3) +
-                                  lines[1].Substring(i * 3, 3) +
-                                  lines[2].Substring(i * 3, 3);
-            if (BankCodeDictionary.DigitPatterns.TryGetValue(digitPattern, out char digit))
+            if (BankCodeDictionary.DigitPatterns.TryGetValue(pattern, out char digit))
             {
                 accountNumber.Append(digit);
             }
@@ -29,9 +26,22 @@ public class BankCodeUtil
             {
                 accountNumber.Append('?'); // 無法識別的數字用 '?' 表示
             }
-
         }
+        
         return accountNumber.ToString();
+    }
+    
+    public string[] GetDigitPatterns(string[] lines)
+    {
+        var patterns = new string[9];
+        for (int i = 0; i < 9; i++)
+        {
+            // 從 3 行裡各取「第 i 格的那 3 個字元」，疊成 9 字元的圖案
+            patterns[i] = lines[0].Substring(i * 3, 3) +
+                          lines[1].Substring(i * 3, 3) +
+                          lines[2].Substring(i * 3, 3);
+        }
+        return patterns;
     }
     
     // User Story 2: 校驗和驗證
@@ -92,7 +102,23 @@ public class BankCodeUtil
 
     public (bool isFix, bool isAMB, string[] probablyNumber) SmartFix(string[] lines)
     {
-        return (false, false, Array.Empty<string>());
+        var original = ParseAccount(lines);              // 可能含 '?'，例如 "0?0000051"
+        var patterns = GetDigitPatterns(lines);          // 每格的原始圖案 (關鍵：保留 '?' 格的圖案)
+        var valid = new HashSet<string>();
+        for (int i = 0; i < 9; i++)
+        {
+            // 用「原始圖案」算候選，'?' 格也照樣能補回來
+            foreach (var altDigit in GetAlternativeDigits(patterns[i]))
+            {
+                var chars = original.ToCharArray();
+                chars[i] = altDigit;
+                var candidate = new string(chars);
+                if (candidate.Contains('?')) continue;   // 還有別的 '?' → 一條線救不了
+                if (IsValidCheckSum(candidate)) valid.Add(candidate);
+            }
+        }
+        var probably = valid.OrderBy(n => n).ToArray();
+        return (probably.Length >= 1, probably.Length > 1, probably);
     }
     
     // 3x3 格子裡「可放線段」的槽位 (索引 -> 該槽位應有的線段字元)
