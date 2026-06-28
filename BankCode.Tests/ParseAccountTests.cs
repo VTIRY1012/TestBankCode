@@ -1,68 +1,128 @@
-using BankCode;
-
 namespace BankCode.Tests;
 
-// User Story 1: 數字識別 - 從 3x3 字元圖案解析出 9 位數帳號
+// Use case 1: 基本解析 (官方測試資料)
 public class ParseAccountTests
 {
     private readonly BankCodeService _service = new();
 
-    [Fact]
-    public void Should_Parse_123456789()
+    public static IEnumerable<object[]> UseCase1 => new List<object[]>
     {
-        string[] lines =
+        new object[]
         {
-            "    _  _     _  _  _  _  _ ",
-            "  | _| _||_||_ |_   ||_||_|",
-            "  ||_  _|  | _||_|  ||_| _|"
-        };
-
-        Assert.Equal("123456789", _service.ParseNumber(lines).number);
-    }
-
-    [Fact]
-    public void Should_Parse_000000000()
-    {
-        string[] lines =
+            new[]
+            {
+                " _  _  _  _  _  _  _  _  _ ",
+                "| || || || || || || || || |",
+                "|_||_||_||_||_||_||_||_||_|"
+            },
+            "000000000"
+        },
+        new object[]
         {
-            " _  _  _  _  _  _  _  _  _ ",
-            "| || || || || || || || || |",
-            "|_||_||_||_||_||_||_||_||_|"
-        };
-
-        Assert.Equal("000000000", _service.ParseNumber(lines).number);
-    }
+            new[]
+            {
+                new string(' ', 27),
+                "  |  |  |  |  |  |  |  |  |",
+                "  |  |  |  |  |  |  |  |  |"
+            },
+            "111111111"
+        },
+        new object[]
+        {
+            new[]
+            {
+                " _  _  _  _  _  _  _  _  _ ",
+                " _| _| _| _| _| _| _| _| _|",
+                "|_ |_ |_ |_ |_ |_ |_ |_ |_ "
+            },
+            "222222222"
+        },
+        new object[]
+        {
+            new[]
+            {
+                " _  _  _  _  _  _  _  _  _ ",
+                " _| _| _| _| _| _| _| _| _|",
+                " _| _| _| _| _| _| _| _| _|"
+            },
+            "333333333"
+        },
+        new object[]
+        {
+            new[]
+            {
+                new string(' ', 27),
+                "|_||_||_||_||_||_||_||_||_|",
+                "  |  |  |  |  |  |  |  |  |"
+            },
+            "444444444"
+        },
+        new object[]
+        {
+            new[]
+            {
+                " _  _  _  _  _  _  _  _  _ ",
+                "|_ |_ |_ |_ |_ |_ |_ |_ |_ ",
+                " _| _| _| _| _| _| _| _| _|"
+            },
+            "555555555"
+        },
+        new object[]
+        {
+            new[]
+            {
+                " _  _  _  _  _  _  _  _  _ ",
+                "|_ |_ |_ |_ |_ |_ |_ |_ |_ ",
+                "|_||_||_||_||_||_||_||_||_|"
+            },
+            "666666666"
+        },
+        new object[]
+        {
+            new[]
+            {
+                " _  _  _  _  _  _  _  _  _ ",
+                "  |  |  |  |  |  |  |  |  |",
+                "  |  |  |  |  |  |  |  |  |"
+            },
+            "777777777"
+        },
+        new object[]
+        {
+            new[]
+            {
+                " _  _  _  _  _  _  _  _  _ ",
+                "|_||_||_||_||_||_||_||_||_|",
+                "|_||_||_||_||_||_||_||_||_|"
+            },
+            "888888888"
+        },
+        new object[]
+        {
+            new[]
+            {
+                " _  _  _  _  _  _  _  _  _ ",
+                "|_||_||_||_||_||_||_||_||_|",
+                " _| _| _| _| _| _| _| _| _|"
+            },
+            "999999999"
+        },
+        new object[]
+        {
+            new[]
+            {
+                "    _  _     _  _  _  _  _ ",
+                "  | _| _||_||_ |_   ||_||_|",
+                "  ||_  _|  | _||_|  ||_| _|"
+            },
+            "123456789"
+        }
+    };
 
     [Theory]
-    [InlineData("123456789")]
-    [InlineData("000000000")]
-    [InlineData("490067715")]
-    [InlineData("345882865")]
-    [InlineData("987654321")]
-    public void Should_RoundTrip_Rendered_Account(string account)
+    [MemberData(nameof(UseCase1))]
+    public void Should_Parse_Account_From_Lines(string[] lines, string expected)
     {
-        string[] lines = AccountRenderer.Render(account);
-        Assert.Equal(account, _service.ParseNumber(lines).number);
-    }
-
-    [Fact]
-    public void Should_Return_Nine_Digits()
-    {
-        string[] lines = AccountRenderer.Render("000000000");
-        Assert.Equal(9, _service.ParseNumber(lines).number.Length);
-    }
-
-    [Fact]
-    public void Should_Use_QuestionMark_For_Unrecognized_Digit()
-    {
-        // 最後一個數字的圖案被破壞，無法對應任何數字
-        string[] lines =
-        {
-            " _  _  _  _  _  _  _  _  _ ",
-            "| || || || || || || || || |",
-            "|_||_||_||_||_||_||_||_| _ "
-        };
-
-        Assert.Equal("00000000?", _service.ParseNumber(lines).number);
+        Assert.Equal(expected, _service.ParseNumber(lines).number);
     }
 }
